@@ -3,6 +3,7 @@
 collection_name = Variable() # The name of the collection for display
 collection_owner = Variable() # Only the owner can mint new NFTs for this collection
 collection_nfts = Hash(default_value=0) # All NFTs of the collection
+collection_nfts_metadata = Hash(default_value=0) # optional metadata hash so metadata can be stored separately from main NFT data
 collection_balances = Hash(default_value=0) # All user balances of the NFTs
 collection_balances_approvals = Hash(default_value=0) # Approval amounts of certain NFTs
 
@@ -10,6 +11,11 @@ collection_balances_approvals = Hash(default_value=0) # Approval amounts of cert
 def seed(name: str):
     collection_name.set(name) # Sets the name
     collection_owner.set(ctx.caller) # Sets the owner
+
+@export
+def change_owner(new_owner : str): #allows you to change the owner of the collection
+    assert collection_owner.get() == ctx.caller, "You are not the owner."
+    collection_owner.set(new_owner)
 
 # function to mint a new NFT
 @export
@@ -20,6 +26,12 @@ def mint_nft(name: str, description: str, ipfs_image_url: str, metadata: dict, a
     assert collection_owner.get() == ctx.caller, "Only the collection owner can mint NFTs"
 
     collection_nfts[name] = {"description": description, "ipfs_image_url": ipfs_image_url, "metadata": metadata, "amount": amount} # Adds NFT to collection with all details
+
+    #Creates list of all items in metadata and stores each one individually in the associated hash
+    collection_nfts_metadata[name] = [list(metadata.keys())]
+    for key in metadata.keys():
+        collection_nfts_metadata[name,key] = metadata[key]
+    
     collection_balances[ctx.caller, name] = amount # Mints the NFT
 
 # standard transfer function
