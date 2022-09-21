@@ -25,7 +25,7 @@ def mint_nft(name: str, description: str, ipfs_image_url: str, metadata: dict, a
     assert amount > 0, "You cannot transfer negative amounts"
     assert collection_owner.get() == ctx.caller, "Only the collection owner can mint NFTs"
 
-    collection_nfts[name] = {"description": description, "ipfs_image_url": ipfs_image_url, "metadata": metadata, "amount": amount} # Adds NFT to collection with all details
+    collection_nfts[name] = {"description": description, "ipfs_image_url": ipfs_image_url, "amount": amount} # Adds NFT to collection with all details
 
     #Creates list of all items in metadata and stores each one individually in the associated hash
     collection_nfts_metadata[name] = [list(metadata.keys())]
